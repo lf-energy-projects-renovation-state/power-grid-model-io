@@ -188,15 +188,15 @@ def test_fill_pgm_extra_info():
     assert extra_info[1] == {"id_reference": {"table": _PpTable.bus, "index": 102}}
     assert extra_info[2] == {"id_reference": {"table": _PpTable.bus, "index": 103}}
     assert extra_info[3] == {
-        "id_reference": {"table": "load", "name": "const_current", "index": 201},
+        "id_reference": {"table": _PpTable.load, "name": "const_current", "index": 201},
         "pgm_input": {CT.node: 0},
     }
     assert extra_info[4] == {
-        "id_reference": {"table": "load", "name": "const_current", "index": 202},
+        "id_reference": {"table": _PpTable.load, "name": "const_current", "index": 202},
         "pgm_input": {CT.node: 1},
     }
     assert extra_info[5] == {
-        "id_reference": {"table": "load", "name": "const_current", "index": 203},
+        "id_reference": {"table": _PpTable.load, "name": "const_current", "index": 203},
         "pgm_input": {CT.node: 2},
     }
     assert extra_info[6] == {"pgm_input": {AT.from_node: 0, AT.to_node: 1, AT.i_n: 106.0}}
@@ -347,9 +347,9 @@ def test_extra_info_to_idx_lookup():
         0: {"id_reference": {"table": _PpTable.bus, "index": 101}},
         1: {"id_reference": {"table": _PpTable.bus, "index": 102}},
         2: {"id_reference": {"table": _PpTable.bus, "index": 103}},
-        3: {"id_reference": {"table": "load", "name": "const_current", "index": 201}, "node": 0},
-        4: {"id_reference": {"table": "load", "name": "const_current", "index": 202}, "node": 1},
-        5: {"id_reference": {"table": "load", "name": "const_current", "index": 203}, "node": 2},
+        3: {"id_reference": {"table": _PpTable.load, "name": "const_current", "index": 201}, "node": 0},
+        4: {"id_reference": {"table": _PpTable.load, "name": "const_current", "index": 202}, "node": 1},
+        5: {"id_reference": {"table": _PpTable.load, "name": "const_current", "index": 203}, "node": 2},
         6: {"from_node": 0, "to_node": 1},
         7: {"from_node": 1, "to_node": 2},
     }
@@ -364,10 +364,10 @@ def test_extra_info_to_idx_lookup():
     )
 
     pd.testing.assert_series_equal(
-        converter.idx[("load", "const_current")], pd.Series([3, 4, 5], index=[201, 202, 203])
+        converter.idx[(_PpTable.load, "const_current")], pd.Series([3, 4, 5], index=[201, 202, 203])
     )
     pd.testing.assert_series_equal(
-        converter.idx_lookup[("load", "const_current")], pd.Series([201, 202, 203], index=[3, 4, 5])
+        converter.idx_lookup[(_PpTable.load, "const_current")], pd.Series([201, 202, 203], index=[3, 4, 5])
     )
 
 
@@ -504,7 +504,7 @@ def test_create_input_data():
         (PandaPowerConverter._create_pgm_input_sources, _PpTable.ext_grid),
         (PandaPowerConverter._create_pgm_input_shunts, _PpTable.shunt),
         (PandaPowerConverter._create_pgm_input_sym_gens, _PpTable.sgen),
-        (PandaPowerConverter._create_pgm_input_sym_loads, "load"),
+        (PandaPowerConverter._create_pgm_input_sym_loads, _PpTable.load),
         (PandaPowerConverter._create_pgm_input_transformers, _PpTable.trafo),
         (PandaPowerConverter._create_pgm_input_three_winding_transformers, _PpTable.trafo3w),
         (PandaPowerConverter._create_pgm_input_links, _PpTable.switch),
@@ -784,7 +784,7 @@ def test_create_pgm_input_sources__zero_sequence(kwargs) -> None:
 @patch("power_grid_model_io.converters.pandapower_converter.initialize_array")
 def test_create_pgm_input_sym_loads(mock_init_array: MagicMock, two_pp_objs, converter, pp_version, monkeypatch):
     # Arrange
-    converter.pp_input_data["load"] = two_pp_objs
+    converter.pp_input_data[_PpTable.load] = two_pp_objs
     pgm_attr = [AT.id, AT.node, AT.status, AT.p_specified, AT.q_specified, AT.type]
     pgm = {attr: MagicMock() for attr in pgm_attr}
     mock_init_array.return_value = pgm
@@ -805,21 +805,21 @@ def test_create_pgm_input_sym_loads(mock_init_array: MagicMock, two_pp_objs, con
     mock_init_array.assert_called_once_with(data_type=DatasetType.input, component_type=CT.sym_load, shape=3 * 2)
 
     # retrieval:
-    converter._get_pp_attr.assert_any_call("load", _PpAttr.bus, expected_type="u4")
-    converter._get_pp_attr.assert_any_call("load", _PpAttr.p_mw, expected_type="f8", default=0.0)
-    converter._get_pp_attr.assert_any_call("load", _PpAttr.q_mvar, expected_type="f8", default=0.0)
-    converter._get_pp_attr.assert_any_call("load", _PpAttr.scaling, expected_type="f8", default=1)
-    converter._get_pp_attr.assert_any_call("load", _PpAttr.in_service, expected_type="bool", default=True)
-    converter._get_pp_attr.assert_any_call("load", _PpAttr.type, expected_type="O", default=None)
+    converter._get_pp_attr.assert_any_call(_PpTable.load, _PpAttr.bus, expected_type="u4")
+    converter._get_pp_attr.assert_any_call(_PpTable.load, _PpAttr.p_mw, expected_type="f8", default=0.0)
+    converter._get_pp_attr.assert_any_call(_PpTable.load, _PpAttr.q_mvar, expected_type="f8", default=0.0)
+    converter._get_pp_attr.assert_any_call(_PpTable.load, _PpAttr.scaling, expected_type="f8", default=1)
+    converter._get_pp_attr.assert_any_call(_PpTable.load, _PpAttr.in_service, expected_type="bool", default=True)
+    converter._get_pp_attr.assert_any_call(_PpTable.load, _PpAttr.type, expected_type="O", default=None)
     if pp_version < PP_COMPATIBILITY_VERSION_3_2_0:
-        converter._get_pp_attr.assert_any_call("load", _PpAttr.const_z_percent, expected_type="f8", default=0)
-        converter._get_pp_attr.assert_any_call("load", _PpAttr.const_i_percent, expected_type="f8", default=0)
+        converter._get_pp_attr.assert_any_call(_PpTable.load, _PpAttr.const_z_percent, expected_type="f8", default=0)
+        converter._get_pp_attr.assert_any_call(_PpTable.load, _PpAttr.const_i_percent, expected_type="f8", default=0)
         assert len(converter._get_pp_attr.call_args_list) == 8
     else:
-        converter._get_pp_attr.assert_any_call("load", _PpAttr.const_z_p_percent, expected_type="f8", default=0)
-        converter._get_pp_attr.assert_any_call("load", _PpAttr.const_z_q_percent, expected_type="f8", default=0)
-        converter._get_pp_attr.assert_any_call("load", _PpAttr.const_i_p_percent, expected_type="f8", default=0)
-        converter._get_pp_attr.assert_any_call("load", _PpAttr.const_i_q_percent, expected_type="f8", default=0)
+        converter._get_pp_attr.assert_any_call(_PpTable.load, _PpAttr.const_z_p_percent, expected_type="f8", default=0)
+        converter._get_pp_attr.assert_any_call(_PpTable.load, _PpAttr.const_z_q_percent, expected_type="f8", default=0)
+        converter._get_pp_attr.assert_any_call(_PpTable.load, _PpAttr.const_i_p_percent, expected_type="f8", default=0)
+        converter._get_pp_attr.assert_any_call(_PpTable.load, _PpAttr.const_i_q_percent, expected_type="f8", default=0)
         assert len(converter._get_pp_attr.call_args_list) == 10
 
     # assignment:
@@ -2075,12 +2075,12 @@ def test_get_pgm_ids():
     converter = PandaPowerConverter()
     converter.idx = {
         (_PpTable.bus, None): pd.Series([10, 11, 12], index=[0, 1, 2]),
-        ("load", "const_current"): pd.Series([13, 14], index=[3, 4]),
+        (_PpTable.load, "const_current"): pd.Series([13, 14], index=[3, 4]),
     }
 
     # Act
     bus_ids = converter._get_pgm_ids(pp_table=_PpTable.bus, pp_idx=pd.Series([2, 1]))
-    load_ids = converter._get_pgm_ids(pp_table="load", name="const_current", pp_idx=pd.Series([3]))
+    load_ids = converter._get_pgm_ids(pp_table=_PpTable.load, name="const_current", pp_idx=pd.Series([3]))
     all_bus_ids = converter._get_pgm_ids(pp_table=_PpTable.bus)
 
     # Assert
@@ -2430,11 +2430,11 @@ def test_lookup_id():
     converter = PandaPowerConverter()
     converter.idx_lookup = {
         (_PpTable.line, None): pd.Series([0, 1, 2, 3, 4], index=[21, 345, 0, 3, 15]),
-        ("load", "const_current"): pd.Series([5, 6, 7, 8, 9], index=[543, 14, 34, 48, 4]),
+        (_PpTable.load, "const_current"): pd.Series([5, 6, 7, 8, 9], index=[543, 14, 34, 48, 4]),
     }
 
     expected_line = {"table": _PpTable.line, "index": 4}
-    expected_load = {"table": "load", "name": "const_current", "index": 8}
+    expected_load = {"table": _PpTable.load, "name": "const_current", "index": 8}
 
     # Act
     actual_line = converter.lookup_id(15)
