@@ -168,7 +168,7 @@ def test_fill_pgm_extra_info():
     # Arrange
     converter = PandaPowerConverter()
     converter.idx_lookup[(_PpTable.bus, None)] = pd.Series([101, 102, 103], index=[0, 1, 2])
-    converter.idx_lookup[("load", "const_current")] = pd.Series([201, 202, 203], index=[3, 4, 5])
+    converter.idx_lookup[(_PpTable.load, "const_current")] = pd.Series([201, 202, 203], index=[3, 4, 5])
     converter.pgm_input_data[CT.sym_load] = initialize_array(DatasetType.input, CT.sym_load, 3)
     converter.pgm_input_data[CT.sym_load][AT.id] = [3, 4, 5]
     converter.pgm_input_data[CT.sym_load][AT.node] = [0, 1, 2]
@@ -2103,12 +2103,12 @@ def test_get_pp_ids():
     converter = PandaPowerConverter()
     converter.idx_lookup = {
         (_PpTable.bus, None): pd.Series([0, 1, 2], index=[10, 11, 12]),
-        ("load", "const_current"): pd.Series([3, 4], index=[13, 14]),
+        (_PpTable.load, "const_current"): pd.Series([3, 4], index=[13, 14]),
     }
 
     # Act
     bus_ids = converter._get_pp_ids(pp_table=_PpTable.bus, pgm_idx=pd.Series([12, 11]))
-    load_ids = converter._get_pp_ids(pp_table="load", name="const_current", pgm_idx=pd.Series([13]))
+    load_ids = converter._get_pp_ids(pp_table=_PpTable.load, name="const_current", pgm_idx=pd.Series([13]))
     all_bus_ids = converter._get_pp_ids(pp_table=_PpTable.bus)
 
     # Assert
@@ -2325,7 +2325,7 @@ def test_get_switch_states_lines(mock_get_individual_switch_states: MagicMock):
     converter.pp_input_data = {
         _PpTable.line: pd.DataFrame(columns=[_PpAttr.from_bus, _PpAttr.to_bus], data=[[101, 102]], index=[1]),
         _PpTable.switch: pd.DataFrame(
-            columns=[_PpTable.bus, _PpAttr.et, _PpAttr.element, _PpAttr.closed],
+            columns=[_PpAttr.bus, _PpAttr.et, _PpAttr.element, _PpAttr.closed],
             data=[[101, "l", 1, False], [102, "x", 1, False]],
             index=[1001, 1002],
         ),

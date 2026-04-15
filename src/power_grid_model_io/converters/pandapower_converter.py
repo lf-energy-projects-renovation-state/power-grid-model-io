@@ -1194,7 +1194,7 @@ class PandaPowerConverter(BaseConverter[PandaPowerData]):
             data_type=DatasetType.input, component_type=ComponentType.link, shape=len(pp_switches)
         )
         pgm_links[AttributeType.id] = self._generate_ids(_PpTable.switch, pp_switches.index, name="b2b_switches")
-        pgm_links[AttributeType.from_node] = self._get_pgm_ids(_PpTable.bus, pp_switches[_PpTable.bus])
+        pgm_links[AttributeType.from_node] = self._get_pgm_ids(_PpTable.bus, pp_switches[_PpAttr.bus])
         pgm_links[AttributeType.to_node] = self._get_pgm_ids(_PpTable.bus, pp_switches[_PpAttr.element])
         pgm_links[AttributeType.from_status] = pp_switches["closed"]
         pgm_links[AttributeType.to_status] = pp_switches["closed"]
@@ -1889,7 +1889,7 @@ class PandaPowerConverter(BaseConverter[PandaPowerData]):
             # Create a dataframe of element: input table index, bus: input branch bus, current: output current
             single_df = self.pp_input_data[table][[bus_name]]
             single_df = single_df.join(self.pp_output_data["res_" + table][i_name])
-            single_df.columns = [_PpTable.bus, _PpAttr.i_ka]
+            single_df.columns = [_PpAttr.bus, _PpAttr.i_ka]
             single_df[_PpAttr.element] = single_df.index
             single_df[_PpAttr.et] = table_to_et[table]
             return single_df
@@ -1917,7 +1917,7 @@ class PandaPowerConverter(BaseConverter[PandaPowerData]):
             if not rest_switches_absent[table]
         ]
         all_i_df = (
-            pd.DataFrame(columns=[_PpTable.bus, _PpAttr.element, _PpAttr.et, _PpAttr.i_ka])
+            pd.DataFrame(columns=[_PpAttr.bus, _PpAttr.element, _PpAttr.et, _PpAttr.i_ka])
             if not dfs
             else pd.concat(dfs)
         )
@@ -1927,8 +1927,8 @@ class PandaPowerConverter(BaseConverter[PandaPowerData]):
             pp_switches_output,
             all_i_df,
             how="left",
-            left_on=[_PpTable.bus, _PpAttr.element, _PpAttr.et],
-            right_on=[_PpTable.bus, _PpAttr.element, _PpAttr.et],
+            left_on=[_PpAttr.bus, _PpAttr.element, _PpAttr.et],
+            right_on=[_PpAttr.bus, _PpAttr.element, _PpAttr.et],
         )
         pp_switches_output = pp_switches_output[[_PpAttr.i_ka]]
         pp_switches_output.set_index(pp_switches_output_index, inplace=True)
