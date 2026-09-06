@@ -2132,7 +2132,7 @@ class PandaPowerConverter(BaseConverter[PandaPowerData]):
 
                 # Now add the active and reactive powers to the pp busses
                 # Note that the units are incorrect; for efficiency, unit conversions will be applied at the end.
-                pp_output_buses_3ph.loc[idx, power_columns] -= accumulated_data[power_columns]
+                pp_output_buses_3ph.loc[idx, power_columns] -= accumulated_data.loc[idx, power_columns]
 
         # Finally apply the unit conversion (W -> MW and VAR -> MVAR)
         pp_output_buses_3ph[power_columns] /= 1e6
