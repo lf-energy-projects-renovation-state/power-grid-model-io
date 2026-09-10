@@ -38,7 +38,7 @@ jobs:
 
       - name: Build
         run: |
-          cat PYPI_VERSION
+          cat VERSION
           uv build --sdist --no-create-gitignore --out-dir wheelhouse .
 
       - name: Save version
